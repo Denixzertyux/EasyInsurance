@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insurance Details - Easy Insurance</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .detail-container {
+            margin: 30px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            max-width: 800px;
+        }
+        .page-title {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+        .detail-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+        .detail-label {
+            font-weight: bold;
+            color: #495057;
+        }
+        .detail-value {
+            color: #212529;
+        }
+        .action-buttons {
+            margin-top: 30px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="detail-container">
+            <h2 class="page-title">Insurance Details</h2>
+            
+            <div class="detail-item">
+                <div class="detail-label">Insurance ID</div>
+                <div class="detail-value">{{ insurance.insurance_id }}</div>
+            </div>
+            
+            <div class="detail-item">
+                <div class="detail-label">Car Brand</div>
+                <div class="detail-value">{{ insurance.car_brand }}</div>
+            </div>
+            
+            <div class="detail-item">
+                <div class="detail-label">Car Model</div>
+                <div class="detail-value">{{ insurance.car_model }}</div>
+            </div>
+            
+            <div class="detail-item">
+                <div class="detail-label">VIN</div>
+                <div class="detail-value">{{ insurance.VIN }}</div>
+            </div>
+            
+            <div class="detail-item">
+                <div class="detail-label">Start Date</div>
+                <div class="detail-value">{{ insurance.starting_date|date:"Y-m-d" }}</div>
+            </div>
+            
+            <div class="detail-item">
+                <div class="detail-label">Expiry Date</div>
+                <div class="detail-value">{{ insurance.expiry_date|date:"Y-m-d" }}</div>
+            </div>
+            
+            <div class="action-buttons">
+                <a href="{% url 'insurance_edit' insurance.id %}" class="btn btn-warning">Edit</a>
+                <a href="{% url 'insurance_list' %}" class="btn btn-secondary">Back to List</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

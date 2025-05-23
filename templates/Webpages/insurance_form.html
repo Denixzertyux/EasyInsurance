@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insurance Form - Easy Insurance</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .form-container {
+            margin: 30px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            max-width: 800px;
+        }
+        .page-title {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-label {
+            font-weight: bold;
+            color: #495057;
+        }
+        .action-buttons {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        .btn-fill {
+            background-color: #28a745;
+            color: white;
+        }
+        .btn-fill:hover {
+            background-color: #218838;
+            color: white;
+        }
+        .back-button {
+            margin-bottom: 20px;
+        }
+        .back-button .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .car-selector {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <div class="back-button">
+                <a href="{% url 'upload' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Upload
+                </a>
+            </div>
+
+            <h2 class="page-title">New Insurance Form</h2>
+
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            <!-- Car Selection Section -->
+            <div class="car-selector">
+                <h4>Select Existing Car</h4>
+                <form id="carSelectForm" class="row g-3 align-items-end">
+                    <div class="col-md-8">
+                        <label for="carSelect" class="form-label">Choose a car from your database</label>
+                        <select class="form-select" id="carSelect" name="car_id">
+                            <option value="">Select a car...</option>
+                            {% for insurance in insurances %}
+                            <option value="{{ insurance.id }}" 
+                                    data-brand="{{ insurance.car_brand }}"
+                                    data-model="{{ insurance.car_model }}"
+                                    data-vin="{{ insurance.VIN }}">
+                                {{ insurance.car_brand }} {{ insurance.car_model }} (VIN: {{ insurance.VIN }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <button type="button" class="btn btn-fill w-100" id="fillButton">
+                            <i class="fas fa-fill-drip"></i> Fill Form
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Insurance Form -->
+            <form method="post" id="insuranceForm">
+                {% csrf_token %}
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">Car Brand</label>
+                            <input type="text" class="form-control" name="car_brand" id="carBrand" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">Car Model</label>
+                            <input type="text" class="form-control" name="car_model" id="carModel" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">VIN</label>
+                    <input type="text" class="form-control" name="VIN" id="VIN" required>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">Start Date</label>
+                            <input type="date" class="form-control" name="starting_date" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">Expiry Date</label>
+                            <input type="date" class="form-control" name="expiry_date" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Insurance ID</label>
+                    <input type="text" class="form-control" name="insurance_id" required>
+                </div>
+
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-primary">Create Insurance</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://kit.fontawesome.com/your-font-awesome-kit.js" crossorigin="anonymous"></script>
+    <script>
+        document.getElementById('fillButton').addEventListener('click', function() {
+            const select = document.getElementById('carSelect');
+            const selectedOption = select.options[select.selectedIndex];
+            
+            if (selectedOption.value) {
+                // Fill the form with selected car's data
+                document.getElementById('carBrand').value = selectedOption.dataset.brand;
+                document.getElementById('carModel').value = selectedOption.dataset.model;
+                document.getElementById('VIN').value = selectedOption.dataset.vin;
+            }
+        });
+    </script>
+</body>
+</html> 
