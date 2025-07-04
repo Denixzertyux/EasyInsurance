@@ -11,6 +11,13 @@ import json
 class IndexView(TemplateView):
     template_name = "Webpages/index.html"
 
+class LogoutView(View):
+    def get(self, request):
+        # Clear the session
+        request.session.flush()
+        messages.success(request, 'You have been successfully logged out.')
+        return redirect('login')
+
 class LoginPage(View):
     template_name = "Webpages/login.html"
 
@@ -82,7 +89,8 @@ class InsuranceListView(View):
         # Check if user is logged in
         user_id = request.session.get('user_id')
         if not user_id:
-            return JsonResponse({'status': 'error', 'message': 'Please log in'}, status=401)
+            messages.error(request, 'Please log in')
+            return redirect('login')
             
         # Handle delete request
         if 'delete_id' in request.POST:
@@ -91,10 +99,12 @@ class InsuranceListView(View):
                 # Only allow deletion of user's own records
                 insurance = get_object_or_404(Insurance, id=insurance_id, user_id=user_id)
                 insurance.delete()
-                return JsonResponse({'status': 'success', 'message': 'Insurance record deleted successfully'})
+                messages.success(request, 'Insurance record deleted successfully')
+                return redirect('insurance_list')
             except Exception as e:
-                return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
-        return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
+                messages.error(request, str(e))
+                return redirect('insurance_list')
+        return redirect('insurance_list')
 
 class InsuranceDetailView(View):
     template_name = "Webpages/insurance_detail.html"
@@ -210,7 +220,7 @@ class UploadView(View):
                 ).first()
                 
                 if existing_insurance:
-                    messages.warning(request, f'You have already uploaded an insurance record with ID {insurance_data["insurance_id"]}. Please upload a different file.')
+                    messages.error(request, f'An insurance record with ID {insurance_data["insurance_id"]} already exists in your database. Please upload a different file or use the manual entry form to update the existing record.')
                     return render(request, self.template_name)
                 
                 # Create new insurance record

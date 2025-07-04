@@ -1,229 +1,267 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Insurance Records - Easy Insurance</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-    <style>
-        .table-container {
-            margin: 30px auto;
-            padding: 20px;
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        .page-title {
-            text-align: center;
-            margin-bottom: 30px;
-            color: #333;
-        }
-        .table thead th {
-            background-color: #f8f9fa;
-            border-bottom: 2px solid #dee2e6;
-        }
-        .table-hover tbody tr:hover {
-            background-color: #f5f5f5;
-        }
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-        }
-        .btn-view {
-            background-color: #17a2b8;
-            color: white;
-        }
-        .btn-edit {
-            background-color: #ffc107;
-            color: black;
-        }
-        .btn-delete {
-            background-color: #dc3545;
-            color: white;
-        }
-        .toast-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
-        }
-        .back-button {
-            margin-bottom: 20px;
-        }
-        .back-button .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="table-container">
-            <div class="back-button">
-                <a href="{% url 'upload' %}" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left"></i> Back to Upload
+{% extends 'Webpages/base.html' %}
+
+{% block title %}My Insurances - Easy Insurance{% endblock %}
+
+{% block extra_css %}
+<style>
+    .insurance-card {
+        background: var(--light-bg);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+        border: 1px solid transparent;
+    }
+
+    .insurance-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        border-color: var(--secondary-color);
+    }
+
+    .insurance-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .insurance-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--primary-color);
+        margin: 0;
+    }
+
+    .insurance-id {
+        font-size: 0.9rem;
+        color: #666;
+    }
+
+    .insurance-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .detail-item {
+        margin-bottom: 0.5rem;
+    }
+
+    .detail-label {
+        font-size: 0.85rem;
+        color: #666;
+        margin-bottom: 0.25rem;
+    }
+
+    .detail-value {
+        font-weight: 500;
+        color: var(--primary-color);
+    }
+
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+
+    .status-active {
+        background: var(--success-color);
+        color: white;
+    }
+
+    .status-expired {
+        background: var(--danger-color);
+        color: white;
+    }
+
+    .status-pending {
+        background: var(--warning-color);
+        color: white;
+    }
+
+    .btn-action {
+        border-radius: 10px;
+        padding: 8px 20px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+    }
+
+    .btn-view {
+        background: var(--secondary-color);
+        border: none;
+        color: white;
+    }
+
+    .btn-view:hover {
+        background: #2980b9;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        color: white;
+    }
+
+    .btn-edit {
+        background: var(--primary-color);
+        border: none;
+        color: white;
+    }
+
+    .btn-edit:hover {
+        background: #1a252f;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        color: white;
+    }
+
+    .btn-delete {
+        background: var(--danger-color);
+        border: none;
+        color: white;
+    }
+
+    .btn-delete:hover {
+        background: #c0392b;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        color: white;
+    }
+
+    .search-container {
+        margin-bottom: 2rem;
+    }
+
+    .search-input {
+        border-radius: 10px;
+        padding: 12px;
+        border: 1px solid #ddd;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+
+    .search-input:focus {
+        border-color: var(--secondary-color);
+        box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        outline: none;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: #666;
+    }
+
+    .empty-state-icon {
+        font-size: 3rem;
+        color: #ddd;
+        margin-bottom: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">My Insurances</h2>
+        <div class="d-flex gap-2">
+            <a href="{% url 'upload' %}" class="btn btn-primary">
+                <i class="fas fa-upload"></i> Upload PDF
+            </a>
+            <a href="{% url 'insurance_form' %}" class="btn btn-secondary">
+                <i class="fas fa-plus"></i> Add New Insurance
+            </a>
+        </div>
+    </div>
+
+    <div class="search-container">
+        <div class="input-group">
+            <span class="input-group-text bg-white border-end-0">
+                <i class="fas fa-search text-muted"></i>
+            </span>
+            <input type="text" class="search-input border-start-0" placeholder="Search insurances..." id="searchInput">
+        </div>
+    </div>
+
+    {% if insurances %}
+    <div class="insurance-list">
+        {% for insurance in insurances %}
+        <div class="insurance-card">
+            <div class="insurance-header">
+                <div>
+                    <h3 class="insurance-title">{{ insurance.car_brand }} {{ insurance.car_model }}</h3>
+                    <div class="insurance-id">ID: {{ insurance.insurance_id }}</div>
+                </div>
+                <div>
+                    {% if insurance.expiry_date < now %}
+                    <span class="status-badge status-expired">Expired</span>
+                    {% else %}
+                    <span class="status-badge status-active">Active</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="insurance-details">
+                <div class="detail-item">
+                    <div class="detail-label">Starting Date</div>
+                    <div class="detail-value">{{ insurance.starting_date|date:"F d, Y" }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Expiry Date</div>
+                    <div class="detail-value">{{ insurance.expiry_date|date:"F d, Y" }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">VIN</div>
+                    <div class="detail-value">{{ insurance.VIN }}</div>
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'insurance_detail' insurance.id %}" class="btn btn-action btn-view">
+                    <i class="fas fa-eye"></i> View Details
                 </a>
-            </div>
-            
-            <h2 class="page-title">Insurance Records</h2>
-            
-            {% if messages %}
-            <div class="toast-container">
-                {% for message in messages %}
-                <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
-                    <div class="toast-header {% if message.tags %}bg-{{ message.tags }}{% endif %}">
-                        <strong class="me-auto">Notification</strong>
-                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-                    </div>
-                    <div class="toast-body">
-                        {{ message }}
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-            {% endif %}
-            
-            <div class="table-responsive">
-                <table id="insuranceTable" class="table table-striped table-hover">
-                    <thead>
-                        <tr>
-                            <th>Insurance ID</th>
-                            <th>Car Brand</th>
-                            <th>Car Model</th>
-                            <th>VIN</th>
-                            <th>Start Date</th>
-                            <th>Expiry Date</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for insurance in insurances %}
-                        <tr>
-                            <td>{{ insurance.insurance_id }}</td>
-                            <td>{{ insurance.car_brand }}</td>
-                            <td>{{ insurance.car_model }}</td>
-                            <td>{{ insurance.VIN }}</td>
-                            <td>{{ insurance.starting_date|date:"Y-m-d" }}</td>
-                            <td>{{ insurance.expiry_date|date:"Y-m-d" }}</td>
-                            <td>
-                                <div class="action-buttons">
-                                    <a href="{% url 'insurance_detail' insurance.id %}" class="btn btn-sm btn-view">View</a>
-                                    <a href="{% url 'insurance_edit' insurance.id %}" class="btn btn-sm btn-edit">Edit</a>
-                                    <button class="btn btn-sm btn-delete" data-id="{{ insurance.id }}">Delete</button>
-                                </div>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                <a href="{% url 'insurance_edit' insurance.id %}" class="btn btn-action btn-edit">
+                    <i class="fas fa-edit"></i> Edit
+                </a>
+                <form method="post" style="display: inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="delete_id" value="{{ insurance.id }}">
+                    <button type="submit" class="btn btn-action btn-delete" onclick="return confirm('Are you sure you want to delete this insurance?')">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </form>
             </div>
         </div>
+        {% endfor %}
     </div>
-
-    <!-- Delete Confirmation Modal -->
-    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    Are you sure you want to delete this insurance record? This action cannot be undone.
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-danger" id="confirmDelete">Delete</button>
-                </div>
-            </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">
+            <i class="fas fa-shield-alt"></i>
         </div>
+        <h3>No Insurances Found</h3>
+        <p>You haven't added any insurance policies yet. Click the button above to add your first insurance.</p>
     </div>
+    {% endif %}
+</div>
+{% endblock %}
 
-    <!-- Scripts -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
-    <script src="https://kit.fontawesome.com/your-font-awesome-kit.js" crossorigin="anonymous"></script>
-    
-    <script>
-        $(document).ready(function() {
-            // Initialize DataTable
-            $('#insuranceTable').DataTable({
-                "order": [[4, "desc"]], // Sort by start date by default
-                "pageLength": 10,
-                "language": {
-                    "search": "Search records:",
-                    "lengthMenu": "Show _MENU_ records per page",
-                    "info": "Showing _START_ to _END_ of _TOTAL_ records"
-                }
-            });
-
-            // Delete functionality
-            let deleteId = null;
-            const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
-
-            $('.btn-delete').click(function() {
-                deleteId = $(this).data('id');
-                deleteModal.show();
-            });
-
-            $('#confirmDelete').click(function() {
-                if (deleteId) {
-                    $.ajax({
-                        url: '{% url "insurance_list" %}',
-                        method: 'POST',
-                        data: {
-                            'delete_id': deleteId,
-                            'csrfmiddlewaretoken': '{{ csrf_token }}'
-                        },
-                        success: function(response) {
-                            if (response.status === 'success') {
-                                // Remove the row from the table
-                                $(`button[data-id="${deleteId}"]`).closest('tr').fadeOut(400, function() {
-                                    $(this).remove();
-                                });
-                                // Show success message
-                                showToast('success', response.message);
-                            } else {
-                                showToast('error', response.message);
-                            }
-                        },
-                        error: function(xhr) {
-                            showToast('error', 'Error deleting record');
-                        },
-                        complete: function() {
-                            deleteModal.hide();
-                            deleteId = null;
-                        }
-                    });
-                }
-            });
-
-            // Toast notification function
-            function showToast(type, message) {
-                const toastContainer = $('.toast-container');
-                const toast = $(`
-                    <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
-                        <div class="toast-header bg-${type}">
-                            <strong class="me-auto">Notification</strong>
-                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-                        </div>
-                        <div class="toast-body">
-                            ${message}
-                        </div>
-                    </div>
-                `);
-                toastContainer.append(toast);
-                setTimeout(() => {
-                    toast.fadeOut(400, function() {
-                        $(this).remove();
-                    });
-                }, 3000);
+{% block extra_js %}
+<script>
+    document.getElementById('searchInput').addEventListener('keyup', function() {
+        const searchText = this.value.toLowerCase();
+        const insuranceCards = document.querySelectorAll('.insurance-card');
+        
+        insuranceCards.forEach(card => {
+            const text = card.textContent.toLowerCase();
+            if (text.includes(searchText)) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
             }
         });
-    </script>
-</body>
-</html> 
+    });
+</script>
+{% endblock %} 
