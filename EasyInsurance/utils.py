@@ -9,7 +9,7 @@ import json
 load_dotenv()
 
 # Set your API key directly here (temporary solution)
-GEMINI_API_KEY = "AIzaSyCQ-QFbsxP8qyyz0s_XcMEv75YIIUnkrLQ"  # Replace this with your actual API key
+GEMINI_API_KEY = ""  # Replace this with your actual API key
 
 def extract_text_from_pdf(pdf_file):
     """
